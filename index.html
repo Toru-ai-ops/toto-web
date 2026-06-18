@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="toto">
+  <meta name="theme-color" content="#0d1117">
+  <title>toto</title>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <span class="app-logo">toto</span>
+    <span id="headerDate" class="header-date"></span>
+  </header>
+
+  <!-- Tasks Panel -->
+  <div id="panelTasks" class="panel active">
+    <div class="cat-scroll">
+      <button class="cat-chip active" data-cat="全部" onclick="filterTasks(this)">全部</button>
+      <button class="cat-chip" data-cat="工作任務" onclick="filterTasks(this)">💼 工作</button>
+      <button class="cat-chip" data-cat="學習計畫" onclick="filterTasks(this)">📚 學習</button>
+      <button class="cat-chip" data-cat="生活作息" onclick="filterTasks(this)">🌱 生活</button>
+      <button class="cat-chip" data-cat="個人待辦" onclick="filterTasks(this)">⭐ 個人</button>
+    </div>
+    <div id="taskList" class="list-area">
+      <div class="loading">載入中...</div>
+    </div>
+    <div class="add-bar">
+      <input type="text" id="taskInput" class="add-input" placeholder="新增待辦...">
+      <select id="taskCat" class="add-select">
+        <option value="工作任務">💼 工作</option>
+        <option value="學習計畫">📚 學習</option>
+        <option value="生活作息">🌱 生活</option>
+        <option value="個人待辦" selected>⭐ 個人</option>
+      </select>
+      <button class="add-btn" onclick="addTask()">＋</button>
+    </div>
+  </div>
+
+  <!-- Accounting Panel -->
+  <div id="panelAccounting" class="panel">
+    <div class="acct-summary">
+      <div class="sum-item">
+        <span class="sum-label">本月收入</span>
+        <span id="sumIncome" class="sum-val inc">0</span>
+      </div>
+      <div class="sum-sep"></div>
+      <div class="sum-item">
+        <span class="sum-label">本月支出</span>
+        <span id="sumExpense" class="sum-val exp">0</span>
+      </div>
+      <div class="sum-sep"></div>
+      <div class="sum-item">
+        <span class="sum-label">結餘</span>
+        <span id="sumBalance" class="sum-val">0</span>
+      </div>
+    </div>
+    <div id="acctList" class="list-area">
+      <div class="empty-hint">尚無記帳記錄</div>
+    </div>
+    <div class="add-bar">
+      <div class="type-toggle">
+        <button id="btnExp" class="type-btn exp active" onclick="setType('expense')">支出</button>
+        <button id="btnInc" class="type-btn inc" onclick="setType('income')">收入</button>
+      </div>
+      <input type="number" id="acctAmt" class="add-input amt-input" placeholder="金額">
+      <select id="acctCat" class="add-select"></select>
+      <button class="add-btn" onclick="addEntry()">＋</button>
+    </div>
+    <div class="add-bar add-bar2">
+      <input type="text" id="acctNote" class="add-input" placeholder="備註（選填）">
+      <input type="date" id="acctDate" class="add-select date-input">
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <nav class="tab-bar">
+    <button class="tab-item active" onclick="switchTab('tasks', this)">
+      <span class="tab-icon">📋</span>
+      <span>待辦</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('accounting', this)">
+      <span class="tab-icon">💰</span>
+      <span>記帳</span>
+    </button>
+  </nav>
+
+  <script src="/app.js"></script>
+</body>
+</html>
