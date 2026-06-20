@@ -1,5 +1,16 @@
 'use strict';
 
+// ─── iOS Viewport Height Fix ───────────────────────────────────────────────────
+// 100dvh in iOS Safari standalone mode returns the *browser* viewport height,
+// not the standalone viewport height. Use window.innerHeight instead.
+(function () {
+  function applyVH() {
+    document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
+  }
+  applyVH();
+  window.addEventListener('resize', applyVH);
+})();
+
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let tasks      = [];
