@@ -1,16 +1,5 @@
 'use strict';
 
-// ─── iOS Viewport Height Fix ───────────────────────────────────────────────────
-// 100dvh in iOS Safari standalone mode returns the *browser* viewport height,
-// not the standalone viewport height. Use window.innerHeight instead.
-(function () {
-  function applyVH() {
-    document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
-  }
-  applyVH();
-  window.addEventListener('resize', applyVH);
-})();
-
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let tasks      = [];
@@ -43,18 +32,8 @@ const INCOME_CATS  = ['薪資', '獎金', '其他'];
 document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   const days = ['日', '一', '二', '三', '四', '五', '六'];
-  // DEBUG: show viewport info — remove after fix confirmed
-  const isStandalone = window.navigator.standalone;
-  const probe = document.createElement('div');
-  probe.style.cssText = 'position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);width:1px;opacity:0;pointer-events:none;';
-  document.body.appendChild(probe);
-  requestAnimationFrame(() => {
-    const sab = Math.round(probe.getBoundingClientRect().height);
-    document.body.removeChild(probe);
-    document.getElementById('headerDate').textContent =
-      `iH:${window.innerHeight} scH:${screen.height} sab:${sab} sa:${isStandalone ? 1 : 0}`;
-  });
-  // END DEBUG
+  document.getElementById('headerDate').textContent =
+    `${now.getMonth() + 1}/${now.getDate()} 週${days[now.getDay()]}`;
 
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
