@@ -43,8 +43,18 @@ const INCOME_CATS  = ['薪資', '獎金', '其他'];
 document.addEventListener('DOMContentLoaded', () => {
   const now = new Date();
   const days = ['日', '一', '二', '三', '四', '五', '六'];
-  document.getElementById('headerDate').textContent =
-    `${now.getMonth() + 1}/${now.getDate()} 週${days[now.getDay()]}`;
+  // DEBUG: show viewport info — remove after fix confirmed
+  const isStandalone = window.navigator.standalone;
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);width:1px;opacity:0;pointer-events:none;';
+  document.body.appendChild(probe);
+  requestAnimationFrame(() => {
+    const sab = Math.round(probe.getBoundingClientRect().height);
+    document.body.removeChild(probe);
+    document.getElementById('headerDate').textContent =
+      `iH:${window.innerHeight} scH:${screen.height} sab:${sab} sa:${isStandalone ? 1 : 0}`;
+  });
+  // END DEBUG
 
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
