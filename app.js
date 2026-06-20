@@ -1,9 +1,13 @@
 'use strict';
 
+// ─── State ────────────────────────────────────────────────────────────────────
+
 let tasks = [];
 let entries = [];
+let fitEntries = [];
 let taskFilter = '全部';
 let acctType = 'expense';
+let fitLoaded = false;
 
 const EXPENSE_CATS = ['餐飲', '交通', '娛樂', '購物', '日常', '醫療', '其他'];
 const INCOME_CATS  = ['薪資', '獎金', '其他'];
@@ -19,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const y = now.getFullYear();
   const m = String(now.getMonth() + 1).padStart(2, '0');
   const d = String(now.getDate()).padStart(2, '0');
-  document.getElementById('acctDate').value = `${y}-${m}-${d}`;
+  const today = `${y}-${m}-${d}`;
+  document.getElementById('acctDate').value = today;
+  document.getElementById('fitDate').value  = today;
 
   updateAcctCats();
 
@@ -56,7 +62,9 @@ function switchTab(name, btn) {
   document.getElementById('panelTasks').classList.toggle('active', name === 'tasks');
   document.getElementById('panelAccounting').classList.toggle('active', name === 'accounting');
   document.getElementById('panelCalendar').classList.toggle('active', name === 'calendar');
+  document.getElementById('panelFitness').classList.toggle('active', name === 'fitness');
   if (name === 'calendar' && calEvents === null) loadCalendar();
+  if (name === 'fitness' && !fitLoaded) loadFitness();
 }
 
 // ─── Tasks ────────────────────────────────────────────────────────────────────
@@ -432,6 +440,82 @@ async function deleteCalendarEvent() {
     calEvents = null;
     await loadCalendar();
   } catch (e) { alert('刪除失敗: ' + e.message); }
+}
+
+// ─── Fitness ──────────────────────────────────────────────────────────────────
+
+async function loadFitness() {
+  try {
+    fitEntries = await api('/api/fitness');
+    fitLoaded = true;
+    renderFitness();
+  } catch (e) {
+    document.getElementById('fitList').innerHTML =
+      `<div class="empty-hint err">載入失敗: ${e.message}</div>`;
+  }
+}
+
+async function addFitEntry() {
+  const exercise = document.getElementById('fitExercise').value.trim();
+  const date     = document.getElementById('fitDate').value;
+  if (!exercise || !date) return;
+  try {
+    fitEntries = await api('/api/fitness', 'POST', {
+      date,
+      exercise,
+      sets:   document.getElementById('fitSets').value    || null,
+      reps:   document.getElementById('fitReps').value    || null,
+      weight: document.getElementById('fitWeight').value  || null,
+      note:   document.getElementById('fitNote').value.trim(),
+    });
+    document.getElementById('fitExercise').value = '';
+    document.getElementById('fitSets').value     = '';
+    document.getElementById('fitReps').value     = '';
+    document.getElementById('fitWeight').value   = '';
+    document.getElementById('fitNote').value     = '';
+    renderFitness();
+  } catch (e) { alert('新增失敗: ' + e.message); }
+}
+
+async function deleteFitEntry(id) {
+  try {
+    fitEntries = await api(`/api/fitness?id=${id}`, 'DELETE');
+    renderFitness();
+  } catch (e) { alert('刪除失敗: ' + e.message); }
+}
+
+function renderFitness() {
+  const list = document.getElementById('fitList');
+  if (!fitEntries.length) {
+    list.innerHTML = '<div class="empty-hint">尚無訓練記錄</div>';
+    return;
+  }
+  const today = new Date().toISOString().slice(0, 10);
+  const yday  = new Date(+new Date() - 86400000).toISOString().slice(0, 10);
+  const groups = {};
+  for (const e of fitEntries) {
+    if (e.date) (groups[e.date] = groups[e.date] || []).push(e);
+  }
+  let html = '';
+  for (const date of Object.keys(groups).sort((a, b) => b.localeCompare(a))) {
+    const lbl = date === today ? '今天' : date === yday ? '昨天' : date.replace(/-/g, '/');
+    html += `<div class="date-group"><div class="date-hd"><span class="date-lbl">${lbl}</span></div>`;
+    for (const e of groups[date]) {
+      const parts = [];
+      if (e.sets)   parts.push(`${e.sets} 組`);
+      if (e.reps)   parts.push(`${e.reps} 次`);
+      if (e.weight) parts.push(`${e.weight} kg`);
+      const detail = parts.join(' × ');
+      html += `<div class="fit-card">
+        <span class="fit-name">${esc(e.exercise)}</span>
+        ${detail ? `<span class="fit-detail">${detail}</span>` : ''}
+        ${e.note ? `<span class="fit-note">${esc(e.note)}</span>` : ''}
+        <button class="del-btn" onclick="deleteFitEntry('${e.id}')">✕</button>
+      </div>`;
+    }
+    html += '</div>';
+  }
+  list.innerHTML = html;
 }
 
 // ─── Util ─────────────────────────────────────────────────────────────────────

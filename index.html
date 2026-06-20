@@ -6,9 +6,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="toto">
-  <meta name="theme-color" content="#0d1117">
+  <meta name="theme-color" content="#131e2f">
   <title>toto</title>
   <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -78,6 +79,24 @@
     </div>
   </div>
 
+  <!-- Fitness Panel -->
+  <div id="panelFitness" class="panel">
+    <div id="fitList" class="list-area">
+      <div class="loading">載入中...</div>
+    </div>
+    <div class="add-bar">
+      <input type="text" id="fitExercise" class="add-input" placeholder="動作名稱">
+      <button class="add-btn" onclick="addFitEntry()">＋</button>
+    </div>
+    <div class="add-bar add-bar2">
+      <input type="number" id="fitSets" class="add-input" style="max-width:62px" placeholder="組數">
+      <input type="number" id="fitReps" class="add-input" style="max-width:62px" placeholder="次數">
+      <input type="number" id="fitWeight" class="add-input" style="max-width:80px" placeholder="重量 kg">
+      <input type="text" id="fitNote" class="add-input" placeholder="備註（選填）">
+      <input type="date" id="fitDate" class="add-select date-input">
+    </div>
+  </div>
+
   <!-- Calendar Panel -->
   <div id="panelCalendar" class="panel">
     <div id="calList" class="list-area">
@@ -135,6 +154,10 @@
     <button class="tab-item" onclick="switchTab('calendar', this)">
       <span class="tab-icon">📅</span>
       <span>日曆</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('fitness', this)">
+      <span class="tab-icon">🏋️</span>
+      <span>訓練</span>
     </button>
   </nav>
 
