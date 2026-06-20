@@ -88,6 +88,28 @@ html, body {
 }
 .panel.active { display: flex; }
 
+/* ─── Status Toggle ──────────────────────────────────────────────────────────── */
+.status-bar-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.status-btn {
+  padding: 6px 20px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--txt3);
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.status-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+
 /* ─── Category Filter ────────────────────────────────────────────────────────── */
 .cat-scroll {
   display: flex;

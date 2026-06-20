@@ -21,6 +21,10 @@
 
   <!-- Tasks Panel -->
   <div id="panelTasks" class="panel active">
+    <div class="status-bar-row">
+      <button class="status-btn active" onclick="filterStatus('未完成', this)">未完成</button>
+      <button class="status-btn" onclick="filterStatus('已完成', this)">已完成</button>
+    </div>
     <div class="cat-scroll">
       <button class="cat-chip active" data-cat="全部" onclick="filterTasks(this)">全部</button>
       <button class="cat-chip" data-cat="工作任務" onclick="filterTasks(this)">💼 工作</button>

@@ -6,6 +6,7 @@ let tasks      = [];
 let entries    = [];
 let fitEntries = [];
 let taskFilter = '全部';
+let taskStatus = '未完成';
 let acctType   = 'expense';
 let fitLoaded  = false;
 
@@ -129,6 +130,13 @@ async function loadTasks() {
   }
 }
 
+function filterStatus(status, btn) {
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  taskStatus = status;
+  renderTasks();
+}
+
 function filterTasks(btn) {
   document.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
@@ -138,11 +146,10 @@ function filterTasks(btn) {
 
 function renderTasks() {
   const list = document.getElementById('taskList');
-  const filtered = taskFilter === '全部' ? tasks : tasks.filter(t => t.category === taskFilter);
-  const sorted = [...filtered].sort((a, b) => {
-    if (a.completed !== b.completed) return a.completed ? 1 : -1;
-    return 0;
-  });
+  let filtered = taskFilter === '全部' ? tasks : tasks.filter(t => t.category === taskFilter);
+  if (taskStatus === '未完成') filtered = filtered.filter(t => !t.completed);
+  if (taskStatus === '已完成') filtered = filtered.filter(t => t.completed);
+  const sorted = [...filtered];
 
   if (!sorted.length) {
     list.innerHTML = '<div class="empty-hint">沒有待辦事項</div>';
