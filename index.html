@@ -125,6 +125,19 @@
     </div>
   </div>
 
+  <!-- Notes Panel -->
+  <div id="panelNotes" class="panel">
+    <div class="notes-area">
+      <textarea id="notesText" class="notes-textarea" placeholder="開始記錄..." oninput="onNotesInput()" maxlength="500"></textarea>
+      <div class="notes-char-count"><span id="notesCharCount">0</span> / 500</div>
+    </div>
+    <div class="notes-nav">
+      <button class="nav-arrow" id="notesPrev" onclick="notesNav(-1)">‹</button>
+      <span class="notes-page-info">第 <span id="notesPageNum">1</span> 頁 / 共 <span id="notesPageTotal">1</span> 頁</span>
+      <button class="nav-arrow" id="notesNext" onclick="notesNav(1)">›</button>
+    </div>
+  </div>
+
   <!-- Calendar Panel -->
   <div id="panelCalendar" class="panel">
     <div class="nav-bar">
@@ -198,6 +211,10 @@
     <button class="tab-item" onclick="switchTab('fitness', this)">
       <span class="tab-icon">🏋️</span>
       <span>訓練</span>
+    </button>
+    <button class="tab-item" onclick="switchTab('notes', this)">
+      <span class="tab-icon">📝</span>
+      <span>記事本</span>
     </button>
   </nav>
 

@@ -8,7 +8,13 @@ let fitEntries = [];
 let taskFilter = '全部';
 let taskStatus = '未完成';
 let acctType   = 'expense';
-let fitLoaded  = false;
+let fitLoaded    = false;
+let notesLoaded  = false;
+let notesPage    = 1;
+let notesTotal   = 1;
+let notesData    = { 1: '' };
+let notesTimer   = null;
+const NOTES_LIMIT = 500;
 
 let acctViewMode = 'month';
 let acctViewDate = new Date();
@@ -111,11 +117,13 @@ function switchTab(name, btn) {
   document.getElementById('panelAccounting').classList.toggle('active', name === 'accounting');
   document.getElementById('panelCalendar').classList.toggle('active', name === 'calendar');
   document.getElementById('panelFitness').classList.toggle('active', name === 'fitness');
+  document.getElementById('panelNotes').classList.toggle('active', name === 'notes');
   if (name === 'calendar' && (calNeedsReload || calEvents === null)) {
     calNeedsReload = false;
     loadCalendar();
   }
   if (name === 'fitness' && !fitLoaded) loadFitness();
+  if (name === 'notes'   && !notesLoaded) loadNotes();
 }
 
 // ─── Tasks ────────────────────────────────────────────────────────────────────
@@ -623,6 +631,74 @@ function fitNav(dir) {
 }
 function updateFitNav() {
   document.getElementById('fitNavLbl').textContent = navLabel(fitViewDate, fitViewMode);
+}
+
+// ─── Notes ───────────────────────────────────────────────────────────────────
+
+async function loadNotes() {
+  try {
+    const pages = await api('/api/notes');
+    notesData  = {};
+    notesTotal = 0;
+    for (const p of pages) {
+      notesData[p.page] = p.content || '';
+      if (p.page > notesTotal) notesTotal = p.page;
+    }
+    if (notesTotal === 0) { notesData[1] = ''; notesTotal = 1; }
+    notesLoaded = true;
+    notesPage = 1;
+    renderNotesPage();
+  } catch (e) {
+    console.error('Notes load failed:', e.message);
+  }
+}
+
+function renderNotesPage() {
+  const content = notesData[notesPage] || '';
+  document.getElementById('notesText').value = content;
+  updateNotesCount(content.length);
+  document.getElementById('notesPageNum').textContent   = notesPage;
+  document.getElementById('notesPageTotal').textContent = notesTotal;
+  document.getElementById('notesPrev').disabled = notesPage <= 1;
+  document.getElementById('notesNext').classList.toggle('notes-full', content.length >= NOTES_LIMIT);
+}
+
+function updateNotesCount(len) {
+  const el = document.getElementById('notesCharCount');
+  el.textContent = len;
+  el.parentElement.classList.toggle('notes-count-full', len >= NOTES_LIMIT);
+}
+
+function onNotesInput() {
+  const text = document.getElementById('notesText').value;
+  notesData[notesPage] = text;
+  updateNotesCount(text.length);
+  document.getElementById('notesNext').classList.toggle('notes-full', text.length >= NOTES_LIMIT);
+  clearTimeout(notesTimer);
+  notesTimer = setTimeout(saveNotesPage, 1500);
+}
+
+async function saveNotesPage() {
+  try {
+    await api('/api/notes', 'PUT', { page: notesPage, content: notesData[notesPage] || '' });
+  } catch (e) {
+    console.error('Notes save failed:', e.message);
+  }
+}
+
+async function notesNav(dir) {
+  clearTimeout(notesTimer);
+  await saveNotesPage();
+  const newPage = notesPage + dir;
+  if (newPage < 1) return;
+  if (newPage > notesTotal) {
+    notesTotal++;
+    notesData[notesTotal] = '';
+    await api('/api/notes', 'PUT', { page: notesTotal, content: '' });
+  }
+  notesPage = newPage;
+  renderNotesPage();
+  document.getElementById('notesText').focus();
 }
 
 // ─── Util ─────────────────────────────────────────────────────────────────────
