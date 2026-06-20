@@ -2,12 +2,20 @@
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let tasks = [];
-let entries = [];
+let tasks      = [];
+let entries    = [];
 let fitEntries = [];
 let taskFilter = '全部';
-let acctType = 'expense';
-let fitLoaded = false;
+let acctType   = 'expense';
+let fitLoaded  = false;
+
+let acctViewMode = 'month';
+let acctViewDate = new Date();
+let fitViewMode  = 'month';
+let fitViewDate  = new Date();
+let calViewMode  = 'month';
+let calViewDate  = new Date();
+let calNeedsReload = true;
 
 const EXPENSE_CATS = ['餐飲', '交通', '娛樂', '購物', '日常', '醫療', '其他'];
 const INCOME_CATS  = ['薪資', '獎金', '其他'];
@@ -28,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('fitDate').value  = today;
 
   updateAcctCats();
+  updateAcctNav();
+  updateFitNav();
+  updateCalNav();
 
   document.getElementById('taskInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') addTask();
@@ -41,6 +52,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadAll() {
   await Promise.all([loadTasks(), loadAccounting()]);
+}
+
+// ─── Nav helpers ──────────────────────────────────────────────────────────────
+
+function getDateRange(date, mode) {
+  const y = date.getFullYear();
+  const m = date.getMonth();
+  const d = date.getDate();
+  const pad = n => String(n).padStart(2, '0');
+  if (mode === 'day') {
+    const s = `${y}-${pad(m + 1)}-${pad(d)}`;
+    return [s, s];
+  }
+  if (mode === 'month') {
+    const s = `${y}-${pad(m + 1)}-01`;
+    const e = `${y}-${pad(m + 1)}-${pad(new Date(y, m + 1, 0).getDate())}`;
+    return [s, e];
+  }
+  return [`${y}-01-01`, `${y}-12-31`];
+}
+
+function navLabel(date, mode) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  if (mode === 'day')   return `${y}/${m}/${d}`;
+  if (mode === 'month') return `${y}/${m}`;
+  return `${y}`;
+}
+
+function shiftDate(date, mode, dir) {
+  const d = new Date(date);
+  if (mode === 'day')   d.setDate(d.getDate() + dir);
+  if (mode === 'month') d.setMonth(d.getMonth() + dir);
+  if (mode === 'year')  d.setFullYear(d.getFullYear() + dir);
+  return d;
 }
 
 // ─── API helper ───────────────────────────────────────────────────────────────
@@ -63,7 +110,10 @@ function switchTab(name, btn) {
   document.getElementById('panelAccounting').classList.toggle('active', name === 'accounting');
   document.getElementById('panelCalendar').classList.toggle('active', name === 'calendar');
   document.getElementById('panelFitness').classList.toggle('active', name === 'fitness');
-  if (name === 'calendar' && calEvents === null) loadCalendar();
+  if (name === 'calendar' && (calNeedsReload || calEvents === null)) {
+    calNeedsReload = false;
+    loadCalendar();
+  }
   if (name === 'fitness' && !fitLoaded) loadFitness();
 }
 
@@ -194,12 +244,11 @@ async function deleteEntry(id) {
 }
 
 function renderAccounting() {
-  const now = new Date();
-  const ms = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const me  = entries.filter(e => e.date && e.date.startsWith(ms));
+  const [start, end] = getDateRange(acctViewDate, acctViewMode);
+  const period = entries.filter(e => e.date && e.date >= start && e.date <= end);
 
-  const totalInc = me.filter(e => e.type === 'income').reduce((s, e)  => s + e.amount, 0);
-  const totalExp = me.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+  const totalInc = period.filter(e => e.type === 'income').reduce((s, e)  => s + e.amount, 0);
+  const totalExp = period.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
   const balance  = totalInc - totalExp;
   const fmt = n => Math.round(Math.abs(n)).toLocaleString('zh-TW');
 
@@ -210,16 +259,16 @@ function renderAccounting() {
   balEl.className = 'sum-val ' + (balance >= 0 ? 'pos' : 'neg');
 
   const list = document.getElementById('acctList');
-  if (!entries.length) {
-    list.innerHTML = '<div class="empty-hint">尚無記帳記錄</div>';
+  if (!period.length) {
+    list.innerHTML = `<div class="empty-hint">${entries.length ? '此期間無記帳記錄' : '尚無記帳記錄'}</div>`;
     return;
   }
 
-  const today = now.toISOString().slice(0, 10);
-  const yday  = new Date(+now - 86400000).toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
+  const yday  = new Date(+new Date() - 86400000).toISOString().slice(0, 10);
 
   const groups = {};
-  for (const e of entries) {
+  for (const e of period) {
     if (e.date) (groups[e.date] = groups[e.date] || []).push(e);
   }
 
@@ -251,6 +300,22 @@ function renderAccounting() {
   list.innerHTML = html;
 }
 
+function setAcctMode(mode, btn) {
+  acctViewMode = mode;
+  document.querySelectorAll('#panelAccounting .nav-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateAcctNav();
+  renderAccounting();
+}
+function acctNav(dir) {
+  acctViewDate = shiftDate(acctViewDate, acctViewMode, dir);
+  updateAcctNav();
+  renderAccounting();
+}
+function updateAcctNav() {
+  document.getElementById('acctNavLbl').textContent = navLabel(acctViewDate, acctViewMode);
+}
+
 // ─── Calendar ─────────────────────────────────────────────────────────────────
 
 let calEvents = null;
@@ -259,8 +324,9 @@ let editingEvent = null;
 
 async function loadCalendar() {
   document.getElementById('calList').innerHTML = '<div class="loading">載入中...</div>';
+  const [from, to] = getDateRange(calViewDate, calViewMode);
   try {
-    const events = await api('/api/calendar');
+    const events = await api(`/api/calendar?from=${from}&to=${to}`);
     calEvents = events;
     renderCalendar();
   } catch (e) {
@@ -271,6 +337,22 @@ async function loadCalendar() {
       document.getElementById('calList').innerHTML = `<div class="empty-hint err">載入失敗: ${e.message}</div>`;
     }
   }
+}
+
+function setCalMode(mode, btn) {
+  calViewMode = mode;
+  document.querySelectorAll('#panelCalendar .nav-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateCalNav();
+  loadCalendar();
+}
+function calNav(dir) {
+  calViewDate = shiftDate(calViewDate, calViewMode, dir);
+  updateCalNav();
+  loadCalendar();
+}
+function updateCalNav() {
+  document.getElementById('calNavLbl').textContent = navLabel(calViewDate, calViewMode);
 }
 
 function renderCalendar() {
@@ -486,14 +568,16 @@ async function deleteFitEntry(id) {
 
 function renderFitness() {
   const list = document.getElementById('fitList');
-  if (!fitEntries.length) {
-    list.innerHTML = '<div class="empty-hint">尚無訓練記錄</div>';
+  const [start, end] = getDateRange(fitViewDate, fitViewMode);
+  const period = fitEntries.filter(e => e.date && e.date >= start && e.date <= end);
+  if (!period.length) {
+    list.innerHTML = `<div class="empty-hint">${fitEntries.length ? '此期間無訓練記錄' : '尚無訓練記錄'}</div>`;
     return;
   }
   const today = new Date().toISOString().slice(0, 10);
   const yday  = new Date(+new Date() - 86400000).toISOString().slice(0, 10);
   const groups = {};
-  for (const e of fitEntries) {
+  for (const e of period) {
     if (e.date) (groups[e.date] = groups[e.date] || []).push(e);
   }
   let html = '';
@@ -516,6 +600,22 @@ function renderFitness() {
     html += '</div>';
   }
   list.innerHTML = html;
+}
+
+function setFitMode(mode, btn) {
+  fitViewMode = mode;
+  document.querySelectorAll('#panelFitness .nav-mode-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  updateFitNav();
+  renderFitness();
+}
+function fitNav(dir) {
+  fitViewDate = shiftDate(fitViewDate, fitViewMode, dir);
+  updateFitNav();
+  renderFitness();
+}
+function updateFitNav() {
+  document.getElementById('fitNavLbl').textContent = navLabel(fitViewDate, fitViewMode);
 }
 
 // ─── Util ─────────────────────────────────────────────────────────────────────

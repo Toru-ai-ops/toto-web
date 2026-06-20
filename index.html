@@ -45,14 +45,26 @@
 
   <!-- Accounting Panel -->
   <div id="panelAccounting" class="panel">
+    <div class="nav-bar">
+      <div class="nav-modes">
+        <button class="nav-mode-btn" onclick="setAcctMode('day',this)">日</button>
+        <button class="nav-mode-btn active" onclick="setAcctMode('month',this)">月</button>
+        <button class="nav-mode-btn" onclick="setAcctMode('year',this)">年</button>
+      </div>
+      <div class="nav-ctrl">
+        <button class="nav-arrow" onclick="acctNav(-1)">‹</button>
+        <span class="nav-lbl" id="acctNavLbl"></span>
+        <button class="nav-arrow" onclick="acctNav(1)">›</button>
+      </div>
+    </div>
     <div class="acct-summary">
       <div class="sum-item">
-        <span class="sum-label">本月收入</span>
+        <span class="sum-label">收入</span>
         <span id="sumIncome" class="sum-val inc">0</span>
       </div>
       <div class="sum-sep"></div>
       <div class="sum-item">
-        <span class="sum-label">本月支出</span>
+        <span class="sum-label">支出</span>
         <span id="sumExpense" class="sum-val exp">0</span>
       </div>
       <div class="sum-sep"></div>
@@ -81,6 +93,18 @@
 
   <!-- Fitness Panel -->
   <div id="panelFitness" class="panel">
+    <div class="nav-bar">
+      <div class="nav-modes">
+        <button class="nav-mode-btn" onclick="setFitMode('day',this)">日</button>
+        <button class="nav-mode-btn active" onclick="setFitMode('month',this)">月</button>
+        <button class="nav-mode-btn" onclick="setFitMode('year',this)">年</button>
+      </div>
+      <div class="nav-ctrl">
+        <button class="nav-arrow" onclick="fitNav(-1)">‹</button>
+        <span class="nav-lbl" id="fitNavLbl"></span>
+        <button class="nav-arrow" onclick="fitNav(1)">›</button>
+      </div>
+    </div>
     <div id="fitList" class="list-area">
       <div class="loading">載入中...</div>
     </div>
@@ -99,6 +123,18 @@
 
   <!-- Calendar Panel -->
   <div id="panelCalendar" class="panel">
+    <div class="nav-bar">
+      <div class="nav-modes">
+        <button class="nav-mode-btn" onclick="setCalMode('day',this)">日</button>
+        <button class="nav-mode-btn active" onclick="setCalMode('month',this)">月</button>
+        <button class="nav-mode-btn" onclick="setCalMode('year',this)">年</button>
+      </div>
+      <div class="nav-ctrl">
+        <button class="nav-arrow" onclick="calNav(-1)">‹</button>
+        <span class="nav-lbl" id="calNavLbl"></span>
+        <button class="nav-arrow" onclick="calNav(1)">›</button>
+      </div>
+    </div>
     <div id="calList" class="list-area">
       <div class="loading">載入中...</div>
     </div>

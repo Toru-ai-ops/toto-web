@@ -28,13 +28,18 @@ module.exports = async (req, res) => {
 
     if (req.method === 'GET') {
       const calList = await gcal(token, '/users/me/calendarList');
-      const now = encodeURIComponent(new Date().toISOString());
+      const { from, to } = req.query;
+      const timeMin = encodeURIComponent(
+        from ? new Date(from + 'T00:00:00').toISOString() : new Date().toISOString()
+      );
+      const timeMax = to ? `&timeMax=${encodeURIComponent(new Date(to + 'T23:59:59').toISOString())}` : '';
+      const maxResults = to ? 100 : 20;
       const allEvents = [];
 
       await Promise.all((calList.items || []).map(async (cal) => {
         try {
           const r = await gcal(token,
-            `/calendars/${encodeURIComponent(cal.id)}/events?timeMin=${now}&maxResults=20&singleEvents=true&orderBy=startTime`
+            `/calendars/${encodeURIComponent(cal.id)}/events?timeMin=${timeMin}${timeMax}&maxResults=${maxResults}&singleEvents=true&orderBy=startTime`
           );
           for (const ev of r.items || []) allEvents.push({ ...ev, calendarId: cal.id });
         } catch {}
@@ -43,7 +48,7 @@ module.exports = async (req, res) => {
       allEvents.sort((a, b) =>
         (a.start?.dateTime || a.start?.date || '').localeCompare(b.start?.dateTime || b.start?.date || '')
       );
-      return res.json(allEvents.slice(0, 30));
+      return res.json(allEvents);
     }
 
     if (req.method === 'POST') {
