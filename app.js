@@ -1,5 +1,22 @@
 'use strict';
 
+// ─── iOS Standalone Safe-Area Fix ─────────────────────────────────────────────
+// When viewport-fit=cover doesn't work, env(safe-area-inset-bottom) returns 0.
+// Try extending body 34px below viewport so the home indicator area is covered.
+(function () {
+  if (!window.navigator.standalone) return;
+  var probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;bottom:0;height:env(safe-area-inset-bottom,0px);width:1px;pointer-events:none;opacity:0;';
+  document.documentElement.appendChild(probe);
+  requestAnimationFrame(function () {
+    var sab = probe.getBoundingClientRect().height;
+    document.documentElement.removeChild(probe);
+    if (sab >= 5) return; // env() working, CSS already handles it
+    if (screen.height <= 700) return; // old iPhone with home button, no gap
+    document.body.style.bottom = '-34px';
+  });
+})();
+
 // ─── State ────────────────────────────────────────────────────────────────────
 
 let tasks      = [];

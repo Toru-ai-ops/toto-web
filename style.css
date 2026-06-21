@@ -81,7 +81,7 @@ body {
   cursor: pointer;
   transition: color 0.12s;
 }
-.tab-item.active { color: var(--blue); }
+.tab-item.active { color: var(--purple); }
 .tab-icon { font-size: 22px; line-height: 1; }
 
 /* ─── Panels ─────────────────────────────────────────────────────────────────── */
@@ -533,7 +533,7 @@ body {
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .fit-detail {
-  font-size: 13px; font-weight: 900; color: var(--blue);
+  font-size: 13px; font-weight: 900; color: var(--txt);
   flex-shrink: 0; white-space: nowrap;
 }
 .fit-note {
