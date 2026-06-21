@@ -78,6 +78,16 @@ async function loadAll() {
   await Promise.all([loadTasks(), loadAccounting()]);
 }
 
+// ─── Date helpers ─────────────────────────────────────────────────────────────
+
+function localDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function localToday() { return localDateStr(new Date()); }
+function localYesterday() {
+  const d = new Date(); d.setDate(d.getDate() - 1); return localDateStr(d);
+}
+
 // ─── Nav helpers ──────────────────────────────────────────────────────────────
 
 function getDateRange(date, mode) {
@@ -296,8 +306,8 @@ function renderAccounting() {
     return;
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const yday  = new Date(+new Date() - 86400000).toISOString().slice(0, 10);
+  const today = localToday();
+  const yday  = localYesterday();
 
   const groups = {};
   for (const e of period) {
@@ -408,8 +418,9 @@ function renderCalendar() {
     return;
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-  const tmr   = new Date(+new Date() + 86400000).toISOString().slice(0, 10);
+  const today = localToday();
+  const tmrDate = new Date(); tmrDate.setDate(tmrDate.getDate() + 1);
+  const tmr   = localDateStr(tmrDate);
   const groups = {};
 
   for (const ev of calEvents) {
@@ -606,8 +617,8 @@ function renderFitness() {
     list.innerHTML = `<div class="empty-hint">${fitEntries.length ? '此期間無訓練記錄' : '尚無訓練記錄'}</div>`;
     return;
   }
-  const today = new Date().toISOString().slice(0, 10);
-  const yday  = new Date(+new Date() - 86400000).toISOString().slice(0, 10);
+  const today = localToday();
+  const yday  = localYesterday();
   const groups = {};
   for (const e of period) {
     if (e.date) (groups[e.date] = groups[e.date] || []).push(e);
@@ -703,7 +714,10 @@ async function saveNotesPage() {
   }
 }
 
+let notesNavBusy = false;
 async function notesNav(dir) {
+  if (notesNavBusy) return;
+  notesNavBusy = true;
   clearTimeout(notesTimer);
   await saveNotesPage();
   const newPage = notesPage + dir;
@@ -716,6 +730,7 @@ async function notesNav(dir) {
   notesPage = newPage;
   renderNotesPage();
   document.getElementById('notesText').focus();
+  notesNavBusy = false;
 }
 
 // ─── Util ─────────────────────────────────────────────────────────────────────
