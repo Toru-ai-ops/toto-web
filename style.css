@@ -213,6 +213,7 @@ body {
 .task-card {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
   padding: 13px 14px;
   background: var(--bg3);
@@ -237,7 +238,9 @@ body {
 }
 .check-btn.checked { background: var(--green); border-color: var(--green); color: #fff; }
 
-.task-txt { flex: 1; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.task-txt { flex: 1; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.task-card.expanded { align-items: flex-start; }
+.task-card.expanded .task-txt { white-space: normal; overflow: visible; text-overflow: unset; word-break: break-all; }
 
 .cat-badge {
   font-size: 10px;

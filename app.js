@@ -196,7 +196,7 @@ function renderTasks() {
       <button class="check-btn${t.completed ? ' checked' : ''}" onclick="toggleTask('${t.id}')">
         ${t.completed ? '✓' : ''}
       </button>
-      <span class="task-txt">${esc(t.text)}</span>
+      <span class="task-txt" onclick="this.closest('.task-card').classList.toggle('expanded')">${esc(t.text)}</span>
       <span class="cat-badge ${catCls(t.category)}">${esc(t.category)}</span>
       <button class="del-btn" onclick="deleteTask('${t.id}')">✕</button>
     </div>
