@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateAcctCats();
   updateAcctNav();
   updateFitNav();
-  updateCalNav();
 
   document.getElementById('taskInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') addTask();
