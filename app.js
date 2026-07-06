@@ -552,7 +552,6 @@ async function notesNav(dir) {
   }
   notesPage = newPage;
   renderNotesPage();
-  document.getElementById('notesText').focus();
   notesNavBusy = false;
 }
 
