@@ -228,17 +228,31 @@ async function addTask() {
 }
 
 async function toggleTask(id) {
+  const prev = tasks.map(t => ({ ...t }));
+  tasks = tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t);
+  renderTasks();
   try {
     tasks = await api(`/api/tasks?id=${id}`, 'PATCH');
     renderTasks();
-  } catch (e) { alert('操作失敗: ' + e.message); }
+  } catch (e) {
+    tasks = prev;
+    renderTasks();
+    alert('操作失敗: ' + e.message);
+  }
 }
 
 async function deleteTask(id) {
+  const prev = tasks;
+  tasks = tasks.filter(t => t.id !== id);
+  renderTasks();
   try {
     tasks = await api(`/api/tasks?id=${id}`, 'DELETE');
     renderTasks();
-  } catch (e) { alert('刪除失敗: ' + e.message); }
+  } catch (e) {
+    tasks = prev;
+    renderTasks();
+    alert('刪除失敗: ' + e.message);
+  }
 }
 
 // ─── Accounting ───────────────────────────────────────────────────────────────
@@ -288,10 +302,17 @@ async function addEntry() {
 }
 
 async function deleteEntry(id) {
+  const prev = entries;
+  entries = entries.filter(e => e.id !== id);
+  renderAccounting();
   try {
     entries = await api(`/api/accounting?id=${id}`, 'DELETE');
     renderAccounting();
-  } catch (e) { alert('刪除失敗: ' + e.message); }
+  } catch (e) {
+    entries = prev;
+    renderAccounting();
+    alert('刪除失敗: ' + e.message);
+  }
 }
 
 function renderAccounting() {
@@ -616,10 +637,17 @@ async function addFitEntry() {
 }
 
 async function deleteFitEntry(id) {
+  const prev = fitEntries;
+  fitEntries = fitEntries.filter(f => f.id !== id);
+  renderFitness();
   try {
     fitEntries = await api(`/api/fitness?id=${id}`, 'DELETE');
     renderFitness();
-  } catch (e) { alert('刪除失敗: ' + e.message); }
+  } catch (e) {
+    fitEntries = prev;
+    renderFitness();
+    alert('刪除失敗: ' + e.message);
+  }
 }
 
 function renderFitness() {
