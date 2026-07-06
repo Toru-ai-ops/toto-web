@@ -211,14 +211,20 @@ async function addTask() {
   const inp = document.getElementById('taskInput');
   const text = inp.value.trim();
   if (!text) return;
+  const category = document.getElementById('taskCat').value;
+  const tempId = 'tmp_' + Date.now();
+  tasks = [{ id: tempId, text, category, completed: false }, ...tasks];
+  inp.value = '';
+  renderTasks();
   try {
-    tasks = await api('/api/tasks', 'POST', {
-      text,
-      category: document.getElementById('taskCat').value,
-    });
-    inp.value = '';
+    tasks = await api('/api/tasks', 'POST', { text, category });
     renderTasks();
-  } catch (e) { alert('新增失敗: ' + e.message); }
+  } catch (e) {
+    tasks = tasks.filter(t => t.id !== tempId);
+    inp.value = text;
+    renderTasks();
+    alert('新增失敗: ' + e.message);
+  }
 }
 
 async function toggleTask(id) {
@@ -264,18 +270,21 @@ async function addEntry() {
   const amount = parseFloat(document.getElementById('acctAmt').value);
   const date   = document.getElementById('acctDate').value;
   if (!amount || amount <= 0 || !date) return;
+  const category = document.getElementById('acctCat').value;
+  const note     = document.getElementById('acctNote').value.trim();
+  const tempId   = 'tmp_' + Date.now();
+  entries = [{ id: tempId, type: acctType, amount, category, note, date }, ...entries];
+  document.getElementById('acctAmt').value  = '';
+  document.getElementById('acctNote').value = '';
+  renderAccounting();
   try {
-    entries = await api('/api/accounting', 'POST', {
-      type: acctType,
-      amount,
-      category: document.getElementById('acctCat').value,
-      note:     document.getElementById('acctNote').value.trim(),
-      date,
-    });
-    document.getElementById('acctAmt').value  = '';
-    document.getElementById('acctNote').value = '';
+    entries = await api('/api/accounting', 'POST', { type: acctType, amount, category, note, date });
     renderAccounting();
-  } catch (e) { alert('新增失敗: ' + e.message); }
+  } catch (e) {
+    entries = entries.filter(en => en.id !== tempId);
+    renderAccounting();
+    alert('新增失敗: ' + e.message);
+  }
 }
 
 async function deleteEntry(id) {
@@ -584,22 +593,26 @@ async function addFitEntry() {
   const exercise = document.getElementById('fitExercise').value.trim();
   const date     = document.getElementById('fitDate').value;
   if (!exercise || !date) return;
+  const sets   = document.getElementById('fitSets').value    || null;
+  const reps   = document.getElementById('fitReps').value    || null;
+  const weight = document.getElementById('fitWeight').value  || null;
+  const note   = document.getElementById('fitNote').value.trim();
+  const tempId = 'tmp_' + Date.now();
+  fitEntries = [{ id: tempId, date, exercise, sets, reps, weight, note }, ...fitEntries];
+  document.getElementById('fitExercise').value = '';
+  document.getElementById('fitSets').value     = '';
+  document.getElementById('fitReps').value     = '';
+  document.getElementById('fitWeight').value   = '';
+  document.getElementById('fitNote').value     = '';
+  renderFitness();
   try {
-    fitEntries = await api('/api/fitness', 'POST', {
-      date,
-      exercise,
-      sets:   document.getElementById('fitSets').value    || null,
-      reps:   document.getElementById('fitReps').value    || null,
-      weight: document.getElementById('fitWeight').value  || null,
-      note:   document.getElementById('fitNote').value.trim(),
-    });
-    document.getElementById('fitExercise').value = '';
-    document.getElementById('fitSets').value     = '';
-    document.getElementById('fitReps').value     = '';
-    document.getElementById('fitWeight').value   = '';
-    document.getElementById('fitNote').value     = '';
+    fitEntries = await api('/api/fitness', 'POST', { date, exercise, sets, reps, weight, note });
     renderFitness();
-  } catch (e) { alert('新增失敗: ' + e.message); }
+  } catch (e) {
+    fitEntries = fitEntries.filter(f => f.id !== tempId);
+    renderFitness();
+    alert('新增失敗: ' + e.message);
+  }
 }
 
 async function deleteFitEntry(id) {
