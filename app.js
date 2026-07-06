@@ -542,13 +542,13 @@ async function notesNav(dir) {
   if (notesNavBusy) return;
   notesNavBusy = true;
   clearTimeout(notesTimer);
-  await saveNotesPage();
+  saveNotesPage(); // 背景存，不等
   const newPage = notesPage + dir;
-  if (newPage < 1) return;
+  if (newPage < 1) { notesNavBusy = false; return; }
   if (newPage > notesTotal) {
     notesTotal++;
     notesData[notesTotal] = '';
-    await api('/api/notes', 'PUT', { page: notesTotal, content: '' });
+    api('/api/notes', 'PUT', { page: notesTotal, content: '' }); // 背景建頁
   }
   notesPage = newPage;
   renderNotesPage();
