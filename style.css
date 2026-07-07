@@ -10,7 +10,7 @@
   --blue:    #5BA8C4;
   --green:   #5CA34A;
   --red:     #D43535;
-  --orange:  #C97820;
+  --orange:  #E8751A;
   --purple:  #D593ED;
   --font:    -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
   --hh: 52px;
@@ -360,7 +360,7 @@ body {
   border-radius: 99px; font-weight: 900;
   white-space: nowrap; flex-shrink: 0;
 }
-.type-badge.expense { background: rgba(201,120,32,0.18); color: var(--orange); }
+.type-badge.expense { background: rgba(232,117,26,0.18); color: var(--orange); }
 .type-badge.income  { background: rgba(201,237,147,0.30); color: var(--green); }
 .entry-note {
   flex: 1; font-size: 14px; color: var(--txt2);
@@ -385,7 +385,7 @@ body {
   font-size: 13px; font-weight: 900;
   cursor: pointer; transition: all 0.12s;
 }
-.type-btn.active.exp { background: rgba(201,120,32,0.22); color: var(--orange); }
+.type-btn.active.exp { background: rgba(232,117,26,0.22); color: var(--orange); }
 .type-btn.active.inc { background: rgba(201,237,147,0.35); color: var(--green); }
 
 
