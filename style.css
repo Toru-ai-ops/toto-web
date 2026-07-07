@@ -9,7 +9,7 @@
   --txt3:    #333333;
   --blue:    #5BA8C4;
   --green:   #5CA34A;
-  --red:     #D14466;
+  --red:     #D43535;
   --orange:  #C97820;
   --purple:  #D593ED;
   --font:    -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
@@ -333,9 +333,9 @@ body {
 .sum-label { font-size: 11px; color: var(--txt3); }
 .sum-val { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--txt); }
 .sum-val.inc { color: var(--green); }
-.sum-val.exp { color: var(--red); }
+.sum-val.exp { color: var(--orange); }
 .sum-val.pos { color: var(--blue); }
-.sum-val.neg { color: var(--red); }
+.sum-val.neg { color: var(--orange); }
 .sum-sep { width: 1px; height: 36px; background: var(--border); }
 
 /* ─── Accounting Entries ─────────────────────────────────────────────────────── */
@@ -346,7 +346,7 @@ body {
 }
 .date-lbl { font-size: 11px; color: var(--txt3); font-weight: 800; letter-spacing: 0.05em; }
 .day-sum { display: flex; gap: 8px; font-size: 12px; }
-.exp-txt { color: var(--red); font-weight: 900; }
+.exp-txt { color: var(--orange); font-weight: 900; }
 .inc-txt { color: var(--green); font-weight: 900; }
 
 .acct-card {
@@ -360,14 +360,14 @@ body {
   border-radius: 99px; font-weight: 900;
   white-space: nowrap; flex-shrink: 0;
 }
-.type-badge.expense { background: rgba(237,147,147,0.22); color: var(--red); }
+.type-badge.expense { background: rgba(201,120,32,0.18); color: var(--orange); }
 .type-badge.income  { background: rgba(201,237,147,0.30); color: var(--green); }
 .entry-note {
   flex: 1; font-size: 14px; color: var(--txt2);
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .entry-amt { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-.entry-amt.expense { color: var(--red); }
+.entry-amt.expense { color: var(--orange); }
 .entry-amt.income  { color: var(--green); }
 
 /* ─── Type Toggle ────────────────────────────────────────────────────────────── */
@@ -385,7 +385,7 @@ body {
   font-size: 13px; font-weight: 900;
   cursor: pointer; transition: all 0.12s;
 }
-.type-btn.active.exp { background: rgba(237,147,147,0.28); color: var(--red); }
+.type-btn.active.exp { background: rgba(201,120,32,0.22); color: var(--orange); }
 .type-btn.active.inc { background: rgba(201,237,147,0.35); color: var(--green); }
 
 
