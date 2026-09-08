@@ -25,7 +25,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'POST') {
-      const { date, exercise, sets, reps, weight, note } = req.body;
+      const { date, exercise, sets, reps, weight, unit, note } = req.body;
       if (!date || !exercise) return res.status(400).json({ error: 'date and exercise are required' });
       const { error } = await supabase.from('fitness').insert([{
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
@@ -34,6 +34,7 @@ module.exports = async (req, res) => {
         sets:   sets   ? parseInt(sets)      : null,
         reps:   reps   ? parseInt(reps)      : null,
         weight: weight ? parseFloat(weight)  : null,
+        unit:   unit === 'lb' ? 'lb' : 'kg',
         note: note || '',
         createdAt: new Date().toISOString(),
       }]);

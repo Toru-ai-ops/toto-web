@@ -274,7 +274,8 @@ body {
   border-top: 1px solid var(--border);
   flex-shrink: 0;
 }
-.add-bar2 { border-top: 1px solid rgba(208,112,184,0.4); }
+.add-bar2 { border-top: 1px solid rgba(208,112,184,0.4); flex-wrap: wrap; }
+.add-bar2 #fitNote { flex: 1 1 100%; }
 
 .add-input {
   flex: 1;

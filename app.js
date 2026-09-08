@@ -630,9 +630,10 @@ async function addFitEntry() {
   const sets   = document.getElementById('fitSets').value    || null;
   const reps   = document.getElementById('fitReps').value    || null;
   const weight = document.getElementById('fitWeight').value  || null;
+  const unit   = document.getElementById('fitUnit').value || 'kg';
   const note   = document.getElementById('fitNote').value.trim();
   const tempId = 'tmp_' + Date.now();
-  fitEntries = [{ id: tempId, date, exercise, sets, reps, weight, note }, ...fitEntries];
+  fitEntries = [{ id: tempId, date, exercise, sets, reps, weight, unit, note }, ...fitEntries];
   document.getElementById('fitExercise').value = '';
   document.getElementById('fitSets').value     = '';
   document.getElementById('fitReps').value     = '';
@@ -640,7 +641,7 @@ async function addFitEntry() {
   document.getElementById('fitNote').value     = '';
   renderFitness();
   try {
-    fitEntries = await api('/api/fitness', 'POST', { date, exercise, sets, reps, weight, note });
+    fitEntries = await api('/api/fitness', 'POST', { date, exercise, sets, reps, weight, unit, note });
     renderFitness();
   } catch (e) {
     fitEntries = fitEntries.filter(f => f.id !== tempId);
@@ -685,7 +686,7 @@ function renderFitness() {
       const parts = [];
       if (e.sets)   parts.push(`${e.sets} 組`);
       if (e.reps)   parts.push(`${e.reps} 次`);
-      if (e.weight) parts.push(`${e.weight} kg`);
+      if (e.weight) parts.push(`${e.weight} ${e.unit === 'lb' ? 'lb' : 'kg'}`);
       const detail = parts.join(' × ');
       html += `<div class="fit-card">
         <span class="fit-name">${esc(e.exercise)}</span>
