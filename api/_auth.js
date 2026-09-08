@@ -22,7 +22,7 @@ async function getAccessToken() {
   if (token && token !== data.access_token) {
     await supabase.from('tokens').update({
       access_token: token,
-      expiry_date:  Date.now() + 3540 * 1000,
+      expiry_date:  oauth2.credentials.expiry_date || (Date.now() + 3540 * 1000),
     }).eq('id', 'user');
   }
   return token;
