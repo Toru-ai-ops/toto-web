@@ -464,9 +464,12 @@ function renderCalendar() {
   }
 
   let html = '';
+  let anchored = false;
   for (const date of Object.keys(groups).sort()) {
     const lbl = date === today ? '今天' : date === tmr ? '明天' : date.replace(/-/g, '/');
-    html += `<div class="date-group"><div class="date-hd"><span class="date-lbl">${lbl}</span></div>`;
+    const anchor = (!anchored && date >= today) ? ' id="calTodayAnchor"' : '';
+    if (anchor) anchored = true;
+    html += `<div class="date-group"${anchor}><div class="date-hd"><span class="date-lbl">${lbl}</span></div>`;
     for (const ev of groups[date]) {
       const isAllDay = !!ev.start?.date;
       const timeStr  = isAllDay ? '全天' : fmtTime(ev.start?.dateTime);
@@ -479,6 +482,12 @@ function renderCalendar() {
     html += '</div>';
   }
   list.innerHTML = html;
+
+  // 打開／切換時捲到「今天」（或今天之後最近一天），不用從月初往下找
+  const anchorEl = document.getElementById('calTodayAnchor');
+  if (anchorEl) {
+    list.scrollTop += anchorEl.getBoundingClientRect().top - list.getBoundingClientRect().top;
+  }
 }
 
 function fmtTime(dtStr) {
