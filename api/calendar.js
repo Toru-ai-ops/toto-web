@@ -41,7 +41,12 @@ module.exports = async (req, res) => {
           const r = await gcal(token,
             `/calendars/${encodeURIComponent(cal.id)}/events?timeMin=${timeMin}${timeMax}&maxResults=${maxResults}&singleEvents=true&orderBy=startTime`
           );
-          for (const ev of r.items || []) allEvents.push({ ...ev, calendarId: cal.id });
+          for (const ev of r.items || []) allEvents.push({
+            ...ev,
+            calendarId: cal.id,
+            calendarPrimary: !!cal.primary,
+            calendarName: cal.summaryOverride || cal.summary || '',
+          });
         } catch {}
       }));
 
@@ -51,21 +56,22 @@ module.exports = async (req, res) => {
       return res.json(allEvents);
     }
 
+    // 寫入操作一律鎖定 primary（謝向榮），永遠不動其他共用日曆（如 Lu Lab）
     if (req.method === 'POST') {
-      const { calendarId = 'primary', ...eventData } = req.body;
-      const ev = await gcal(token, `/calendars/${encodeURIComponent(calendarId)}/events`, 'POST', eventData);
+      const { calendarId: _ignored, ...eventData } = req.body;
+      const ev = await gcal(token, `/calendars/primary/events`, 'POST', eventData);
       return res.json(ev);
     }
 
     if (req.method === 'PATCH') {
-      const { id, calendarId = 'primary' } = req.query;
-      const ev = await gcal(token, `/calendars/${encodeURIComponent(calendarId)}/events/${id}`, 'PUT', req.body);
+      const { id } = req.query;
+      const ev = await gcal(token, `/calendars/primary/events/${id}`, 'PUT', req.body);
       return res.json(ev);
     }
 
     if (req.method === 'DELETE') {
-      const { id, calendarId = 'primary' } = req.query;
-      await gcal(token, `/calendars/${encodeURIComponent(calendarId)}/events/${id}`, 'DELETE');
+      const { id } = req.query;
+      await gcal(token, `/calendars/primary/events/${id}`, 'DELETE');
       return res.status(204).end();
     }
 

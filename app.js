@@ -458,7 +458,7 @@ function renderCalendar() {
   const groups = {};
 
   for (const ev of calEvents) {
-    evMap[ev.id] = ev;
+    if (!evMap[ev.id] || ev.calendarPrimary) evMap[ev.id] = ev;  // primary 事件優先佔用 id
     const d = ev.start?.date || (ev.start?.dateTime || '').slice(0, 10);
     (groups[d] = groups[d] || []).push(ev);
   }
@@ -473,10 +473,12 @@ function renderCalendar() {
     for (const ev of groups[date]) {
       const isAllDay = !!ev.start?.date;
       const timeStr  = isAllDay ? '全天' : fmtTime(ev.start?.dateTime);
-      html += `<div class="ev-card" onclick="openEditEvent('${ev.id}')">
+      const ro = !ev.calendarPrimary;  // 非「謝向榮」的行程唯讀
+      html += `<div class="ev-card${ro ? ' ev-ro' : ''}" onclick="openEditEvent('${ev.id}')">
         <span class="ev-time">${timeStr}</span>
         <span class="ev-title">${esc(ev.summary || '（無標題）')}</span>
-        <span class="ev-chevron">›</span>
+        ${ro ? `<span class="ev-cal">${esc(ev.calendarName || '其他日曆')}</span>` : ''}
+        <span class="ev-chevron">${ro ? '🔒' : '›'}</span>
       </div>`;
     }
     html += '</div>';
@@ -518,6 +520,10 @@ function openCreateEvent() {
 function openEditEvent(id) {
   const ev = evMap[id];
   if (!ev) return;
+  if (!ev.calendarPrimary) {
+    alert(`「${ev.calendarName || '其他日曆'}」的行程唯讀，無法在這裡編輯或刪除`);
+    return;
+  }
   editingEvent = ev;
 
   document.getElementById('modalTitle').textContent = '編輯行程';
@@ -589,7 +595,7 @@ async function submitEventModal() {
 
   try {
     if (editingEvent) {
-      await api(`/api/calendar?id=${editingEvent.id}&calendarId=${encodeURIComponent(editingEvent.calendarId || 'primary')}`, 'PATCH', eventData);
+      await api(`/api/calendar?id=${editingEvent.id}`, 'PATCH', eventData);
     } else {
       await api('/api/calendar', 'POST', eventData);
     }
@@ -603,7 +609,7 @@ async function deleteCalendarEvent() {
   if (!editingEvent) return;
   if (!confirm(`確定刪除「${editingEvent.summary}」？`)) return;
   try {
-    await api(`/api/calendar?id=${editingEvent.id}&calendarId=${encodeURIComponent(editingEvent.calendarId || 'primary')}`, 'DELETE');
+    await api(`/api/calendar?id=${editingEvent.id}`, 'DELETE');
     closeEventModal();
     calEvents = null;
     await loadCalendar();

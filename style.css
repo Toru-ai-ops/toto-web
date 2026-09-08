@@ -404,6 +404,13 @@ body {
 }
 .ev-title { flex: 1; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ev-chevron { color: var(--txt3); font-size: 18px; flex-shrink: 0; }
+.ev-card.ev-ro { opacity: 0.72; }
+.ev-cal {
+  font-size: 11px; color: var(--txt3); flex-shrink: 0;
+  max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  padding: 2px 7px; border: 1px solid var(--border); border-radius: 999px;
+}
+.ev-card.ev-ro .ev-chevron { font-size: 12px; }
 
 /* ─── Auth Prompt ────────────────────────────────────────────────────────────── */
 .auth-prompt {
