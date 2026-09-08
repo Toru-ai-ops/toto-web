@@ -87,6 +87,10 @@ function localToday() { return localDateStr(new Date()); }
 function localYesterday() {
   const d = new Date(); d.setDate(d.getDate() - 1); return localDateStr(d);
 }
+const WEEKDAY_ZH = ['日', '一', '二', '三', '四', '五', '六'];
+function weekdayLabel(dateStr) {
+  return `週${WEEKDAY_ZH[new Date(dateStr + 'T00:00:00').getDay()]}`;
+}
 
 // ─── Nav helpers ──────────────────────────────────────────────────────────────
 
@@ -111,7 +115,7 @@ function navLabel(date, mode) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   const d = String(date.getDate()).padStart(2, '0');
-  if (mode === 'day')   return `${y}/${m}/${d}`;
+  if (mode === 'day')   return `${y}/${m}/${d} 週${WEEKDAY_ZH[date.getDay()]}`;
   if (mode === 'month') return `${y}/${m}`;
   return `${y}`;
 }
@@ -346,7 +350,7 @@ function renderAccounting() {
 
   let html = '';
   for (const date of Object.keys(groups).sort((a, b) => b.localeCompare(a))) {
-    const lbl    = date === today ? '今天' : date === yday ? '昨天' : date.replace(/-/g, '/');
+    const lbl    = (date === today ? '今天' : date === yday ? '昨天' : date.replace(/-/g, '/')) + ' ' + weekdayLabel(date);
     const dayExp = groups[date].filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
     const dayInc = groups[date].filter(e => e.type === 'income').reduce((s, e)  => s + e.amount, 0);
 
@@ -466,7 +470,7 @@ function renderCalendar() {
   let html = '';
   let anchored = false;
   for (const date of Object.keys(groups).sort()) {
-    const lbl = date === today ? '今天' : date === tmr ? '明天' : date.replace(/-/g, '/');
+    const lbl = (date === today ? '今天' : date === tmr ? '明天' : date.replace(/-/g, '/')) + ' ' + weekdayLabel(date);
     const anchor = (!anchored && date >= today) ? ' id="calTodayAnchor"' : '';
     if (anchor) anchored = true;
     html += `<div class="date-group"${anchor}><div class="date-hd"><span class="date-lbl">${lbl}</span></div>`;
@@ -686,7 +690,7 @@ function renderFitness() {
   }
   let html = '';
   for (const date of Object.keys(groups).sort((a, b) => b.localeCompare(a))) {
-    const lbl = date === today ? '今天' : date === yday ? '昨天' : date.replace(/-/g, '/');
+    const lbl = (date === today ? '今天' : date === yday ? '昨天' : date.replace(/-/g, '/')) + ' ' + weekdayLabel(date);
     html += `<div class="date-group"><div class="date-hd"><span class="date-lbl">${lbl}</span></div>`;
     for (const e of groups[date]) {
       const parts = [];
