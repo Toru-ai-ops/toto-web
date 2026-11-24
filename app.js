@@ -392,6 +392,105 @@ function updateAcctNav() {
   document.getElementById('acctNavLbl').textContent = navLabel(acctViewDate, acctViewMode);
 }
 
+// ─── Subscriptions ────────────────────────────────────────────────────────────
+
+let subs = [];
+let subsLoaded = false;
+
+function openSubs() {
+  document.getElementById('panelAccounting').classList.add('subs-open');
+  const daySel = document.getElementById('subDay');
+  if (!daySel.options.length) {
+    daySel.innerHTML = Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}">${i + 1} 號</option>`).join('');
+  }
+  const monSel = document.getElementById('subMonth');
+  if (!monSel.options.length) {
+    monSel.innerHTML = Array.from({ length: 12 }, (_, i) => `<option value="${i + 1}">${i + 1} 月</option>`).join('');
+  }
+  if (!subsLoaded) loadSubs();
+}
+function toggleSubMonth() {
+  const isYear = parseFloat(document.getElementById('subAmtYear').value) > 0;
+  document.getElementById('subMonth').style.display = isYear ? '' : 'none';
+}
+function closeSubs() {
+  document.getElementById('panelAccounting').classList.remove('subs-open');
+}
+
+async function loadSubs() {
+  try {
+    subs = await api('/api/subscriptions');
+    subsLoaded = true;
+    renderSubs();
+  } catch (e) {
+    document.getElementById('subList').innerHTML =
+      `<div class="empty-hint err">載入失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+async function addSub() {
+  const name = document.getElementById('subName').value.trim();
+  const mAmt = parseFloat(document.getElementById('subAmt').value);
+  const yAmt = parseFloat(document.getElementById('subAmtYear').value);
+  const billingDay = parseInt(document.getElementById('subDay').value, 10);
+  if (mAmt > 0 && yAmt > 0) { alert('月費和年費只填一個'); return; }
+  const cycle = yAmt > 0 ? 'year' : 'month';
+  const billingMonth = cycle === 'year' ? parseInt(document.getElementById('subMonth').value, 10) : null;
+  const amount = yAmt > 0 ? yAmt : mAmt;
+  if (!name || !(amount > 0)) return;
+  const prev = subs;
+  const tempId = 'tmp_' + Date.now();
+  subs = [...subs, { id: tempId, name, amount, cycle, billingDay, billingMonth }]
+    .sort((a, b) => a.billingDay - b.billingDay);
+  document.getElementById('subName').value = '';
+  document.getElementById('subAmt').value = '';
+  document.getElementById('subAmtYear').value = '';
+  toggleSubMonth();
+  renderSubs();
+  try {
+    subs = await api('/api/subscriptions', 'POST', { name, amount, cycle, billingDay, billingMonth });
+    renderSubs();
+  } catch (e) {
+    subs = prev;
+    renderSubs();
+    alert('新增失敗: ' + e.message);
+  }
+}
+
+async function deleteSub(id) {
+  const prev = subs;
+  subs = subs.filter(s => s.id !== id);
+  renderSubs();
+  try {
+    subs = await api(`/api/subscriptions?id=${encodeURIComponent(id)}`, 'DELETE');
+    renderSubs();
+  } catch (e) {
+    subs = prev;
+    renderSubs();
+    alert('刪除失敗: ' + e.message);
+  }
+}
+
+function renderSubs() {
+  const fmt = n => Math.round(n).toLocaleString('zh-TW');
+  const yearly = s => s.cycle === 'year';
+  const perMonth = subs.reduce((t, s) => t + (yearly(s) ? s.amount / 12 : s.amount), 0);
+  const perYear  = subs.reduce((t, s) => t + (yearly(s) ? s.amount : s.amount * 12), 0);
+  document.getElementById('subTotal').textContent = fmt(perMonth);
+  document.getElementById('subTotalYear').textContent = fmt(perYear);
+  const list = document.getElementById('subList');
+  if (!subs.length) {
+    list.innerHTML = '<div class="empty-hint">尚無訂閱</div>';
+    return;
+  }
+  list.innerHTML = subs.map(s => `<div class="acct-card">
+    <span class="type-badge expense">${yearly(s) && s.billingMonth ? s.billingMonth + '/' + s.billingDay : s.billingDay + ' 號'}</span>
+    <span class="entry-note">${esc(s.name)}</span>
+    <span class="entry-amt expense">-${fmt(s.amount)}<small>${yearly(s) ? '/年' : '/月'}</small></span>
+    <button class="del-btn" onclick="deleteSub('${esc(s.id)}')">✕</button>
+  </div>`).join('');
+}
+
 // ─── Calendar ─────────────────────────────────────────────────────────────────
 
 let calEvents = null;

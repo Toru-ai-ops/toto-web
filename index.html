@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="toto">
-  <meta name="theme-color" content="#131e2f">
+  <meta name="theme-color" content="#E2C3D1">
   <title>toto</title>
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -55,6 +55,7 @@
         <button class="nav-mode-btn active" onclick="setAcctMode('month',this)">月</button>
         <button class="nav-mode-btn" onclick="setAcctMode('year',this)">年</button>
       </div>
+      <button class="sub-open-btn" onclick="openSubs()">訂閱</button>
       <div class="nav-ctrl">
         <button class="nav-arrow" onclick="acctNav(-1)">‹</button>
         <span class="nav-lbl" id="acctNavLbl"></span>
@@ -92,6 +93,40 @@
     <div class="add-bar add-bar2">
       <input type="text" id="acctNote" class="add-input" placeholder="備註（選填）">
       <input type="date" id="acctDate" class="add-select date-input">
+    </div>
+
+    <!-- Subscriptions View -->
+    <div id="subView" class="sub-view">
+      <div class="nav-bar">
+        <button class="sub-open-btn" onclick="closeSubs()">‹ 返回</button>
+        <span class="nav-lbl">訂閱清單</span>
+        <span class="sub-spacer"></span>
+      </div>
+      <div class="acct-summary">
+        <div class="sum-item">
+          <span class="sum-label">每月合計</span>
+          <span id="subTotal" class="sum-val exp">0</span>
+        </div>
+        <div class="sum-sep"></div>
+        <div class="sum-item">
+          <span class="sum-label">每年合計</span>
+          <span id="subTotalYear" class="sum-val exp">0</span>
+        </div>
+      </div>
+      <div id="subList" class="list-area">
+        <div class="empty-hint">尚無訂閱</div>
+      </div>
+      <div class="add-bar">
+        <input type="text" id="subName" class="add-input" placeholder="訂閱名稱">
+        <input type="number" id="subAmt" class="add-input amt-input" placeholder="月費">
+        <input type="number" id="subAmtYear" class="add-input amt-input" placeholder="年費" oninput="toggleSubMonth()">
+        <button class="add-btn" onclick="addSub()">＋</button>
+      </div>
+      <div class="add-bar add-bar2">
+        <span class="sub-day-lbl">扣款日</span>
+        <select id="subMonth" class="add-select" style="display:none"></select>
+        <select id="subDay" class="add-select"></select>
+      </div>
     </div>
   </div>
 
@@ -160,7 +195,7 @@
       <div class="loading">載入中...</div>
     </div>
     <div id="calAddBar" class="add-bar hidden">
-      <button class="add-btn" style="width:100%;border-radius:10px;font-size:15px" onclick="openCreateEvent()">＋ 新增行程</button>
+      <button class="add-btn" style="width:100%;border-radius:18px;font-size:15px" onclick="openCreateEvent()">＋ 新增行程</button>
     </div>
   </div>
 

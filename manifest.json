@@ -4,8 +4,8 @@
   "description": "個人待辦與記帳",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#AB4370",
-  "theme_color": "#AB4370",
+  "background_color": "#E2C3D1",
+  "theme_color": "#E2C3D1",
   "orientation": "portrait",
   "icons": [
     {
